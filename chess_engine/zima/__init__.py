@@ -1,0 +1,1 @@
+# init file for ZIMA chess engine, named in honour of zima blue (story from "Love, Death + Robots")

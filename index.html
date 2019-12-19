@@ -1,0 +1,72 @@
+<html>
+    <head>
+        <script src="static/assets/cookies.js"></script>
+        <title>Chessshhh Engine</title>
+    </head>
+    <body style="font-size: 18px;">
+        <h3>Chessshhh Engine Login</h3>
+        <p id="status">System: OKAY!</p>
+        <!-- <form id="loginForm"> -->
+            User ID: <input type="text" id="user_id"><br></br>
+            Password: <input type="password" id="password"><br></br>
+            <button onclick="login()">Login</button>
+        <!-- </form> -->
+        <script>
+// util functions
+function json(response) {
+    return response.json();
+}
+
+function redirect(response) {
+    console.log(response)
+
+    // set cookie for document --> default for 23 hours
+    // createCookie("auth_token", auth_token, 23);
+    createCookie("game_id", response.game_id, 23);
+    createCookie("player_no", response.player_no, 23);
+    
+    window.location.replace('static/gamepage.html');
+}
+
+function should_redirect(response) {
+    // this function takes the response and redirects the page
+    console.log('>>>>.', response)
+
+    if (response.auth_token == null){
+        // console.log("Invalid username or password")
+        document.getElementById("status").innerHTML = "Invalid Username or Password";
+    } else {
+        // ping the server that you are starting the game
+        createCookie("auth_token", response.auth_token, 23)
+        fetch('/new_game', {
+            method: "GET",
+            headers: {
+                Authentication: readCookie("auth_token")
+            }
+        }).then(json).then(redirect);
+    }    
+}
+
+function login() {
+
+    var username = document.getElementById("user_id")
+    var password = document.getElementById("password")
+    // console.log(username.value, password.value)
+
+    fetch('/login', {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        // headers: {"Content-type": "application/x-www-form-urlencoded; charset=UTF-8"},
+        body: JSON.stringify({
+            username: username.value,
+            password: password.value
+            })
+        }).then(json).then(should_redirect).catch(function(error){
+            console.log('Request failed', error)
+        });
+}
+        </script>
+    </body>
+</html>

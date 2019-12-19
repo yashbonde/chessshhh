@@ -1,0 +1,131 @@
+<html>
+    <head>
+        <title>Chessshhh Engine</title>
+        <!-- <link rel="stylesheet" type="text/css" href="assets/chessboard.min.css"> -->
+        <link rel="stylesheet" type="text/css" href="assets/board.min.css">
+        <script src="assets/jQuery-v3.4.1.min.js"></script>
+        <script src="assets/chessboard.min.js"></script>
+        <script src="assets/chess.min.js"></script>
+        <script src="assets/cookies.js"></script>
+    </head>
+
+    <body style="font-size: 18px;">
+        <h3 style="text-align: center;">Chessshhh Engine Game</h3>
+        <button onclick="newGame()" style="position: absolute;left: 40%;">New Game</button>
+        <button onclick="newGame()" style="position: absolute;left: 50%;">Reset</button><br><br>
+        <!-- <button onclick="fischerRandom()">Random New Game</button><br></br> -->
+        <div id="board" class="board"></div>
+        <br>
+        <div class="info">
+            <div id="move-history" class="move-history">
+        </div>
+        </div>
+
+<script type="text/javascript">
+function perform_move(move_payload){
+    // update the board state
+    if (move_payload.content != null){
+        alert(move_payload.content);
+    }
+    console.log('move_payload>>>', move_payload)
+    board.position(position = move_payload.board_state, useAnimation = true);
+    game.move({
+        from: move_payload.from_square,
+        to: move_payload.to_square
+    })
+    console.log('game>>>',game);
+}
+
+// board visualization and games state handling starts here
+var onDragStart = function (source, piece, position, orientation) {
+    if (game.in_checkmate() === true || game.in_draw() === true ||
+        piece.search(/^b/) !== -1) {
+        return false;
+    }
+};
+
+var renderMoveHistory = function (moves) {
+    var historyElement = $('#move-history').empty();
+    historyElement.empty();
+    for (var i = 0; i < moves.length; i = i + 2) {
+        historyElement.append('<span>' + moves[i] + ' ' + ( moves[i + 1] ? moves[i + 1] : ' ') + '</span><br>')
+    }
+    historyElement.scrollTop(historyElement[0].scrollHeight);
+};
+
+ function onDrop(source, target) {
+    var move = game.move({
+        from: source,
+        to: target,
+        promotion: 'q'
+    });
+    console.log('move', move)
+    // removeGreySquares();
+    if (move == null) {
+        return 'snapback';
+    }
+
+    fetch('/move', {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            from: source,
+            target: target,
+            auth_token: readCookie('auth_token'),
+            game_id: readCookie("game_id"),
+            board_fen: game.fen(),
+            player_no: readCookie("player_no"),
+            san: move.san
+            })
+        }).then(json).then(perform_move).catch(function(error){
+            console.log('Request failed', error)
+        });
+    
+    renderMoveHistory(game.history());
+};
+
+ function onSnapEnd () {
+    console.log('Done with onSnapEnd');
+};
+
+
+// function for new game
+function newGame() {
+    var server_response = fetch('/new_game', {
+        method: "post",
+        headers: {"Content-type": "application/x-www-form-urlencoded; charset=UTF-8"},
+        body: ""
+    }).then(json).then(function(data){
+        // console.log('Request succeeded with JSON reponse', data);
+        // set board position here
+        board.position(data["board_state"])
+    }).catch(function(error){
+        console.log('Request failed', error)
+    });
+}
+
+// util functions
+function json(response) {return response.json();}
+
+
+
+// define the functions
+var game = new Chess()
+var board = ChessBoard('board', {
+    draggable: true,
+    position: 'start',
+    onDragStart,
+    onDrop,
+
+    // onMouseoutSquare: onMouseoutSquare,
+    // onMouseoverSquare: onMouseoverSquare,
+    onSnapEnd
+});
+
+</script>
+
+    </body>
+    
+</html>

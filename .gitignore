@@ -1,0 +1,6 @@
+*.pyc
+*.ipynb
+*.pgn
+*.sql
+.idea/
+pokemon/
