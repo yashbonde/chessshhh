@@ -100,7 +100,7 @@ board: {board}\nfrom_action: {from_action}\nto_action: {to_action}\
                 residual = out
                 logging.info('layer: {}; k: {}; tensor: {}'.format(layer_idx, kernel_size, out))
                 stride = (1,1)
-        out += residual
+        # out += residual
         logging.info('output from conv blocks [+ Residual]: {}'.format(out))
         
         # now we flatten tensor and go for ff layers
