@@ -3,7 +3,7 @@
 # inspired from https://www.github.com/kyubyong/transformer
 
 import tensorflow as tf
-from engine import make_state
+from .engine import make_state
 
 
 def calc_num_batches(filenames, batch_size):

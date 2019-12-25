@@ -1,8 +1,16 @@
 """this is the test for zima-net"""
 
+
 def test_build_network():
-    from .net import network as zima_net
-    print(zima_net())
+    import tensorflow as tf
+    from net import network as zima_net
+    print(zima_net((
+        tf.placeholder(tf.uint8, [None, 8, 8, 4]),
+        tf.placeholder(tf.int32, [None, ]),
+        tf.placeholder(tf.int32, [None, ]),
+        tf.placeholder(tf.float32, [None, ])
+    )))
+
 
 def test_preprocess_states():
     from engine import make_state, preprocess_states
@@ -36,28 +44,26 @@ def test_preprocess_states():
 
 
 def test_trainer():
-    from trainer import train_network_supervised, load_data
-    train_network_supervised('/Users/yashbonde/Desktop/AI/chessshhh/KB_small.pgn', 'pokemon', num_epochs = 100)
+    from trainer import train_network_supervised
+    from glob import glob
+    train_network_supervised(glob('games_data/*.csv'),
+                             'pokemon', num_epochs=60)
+
 
 def test_data_generator():
     import tensorflow as tf
-    from trainer import get_batch
-    batches, num_batches = get_batch(fpath = '/Users/yashbonde/Desktop/AI/chessshhh/KB_small.pgn',
-        batch_size = 3, shuffle = True
-    )
+    from data_loader import get_batch
+    from glob import glob
+    batches, num_batches, tot_samples = get_batch(
+        filenames=glob('games_data/*.csv'), batch_size=3)
     print(f'>>>>>>>>>>>>>>> batches: {batches}, num_batches: {num_batches}')
-
-    # batches = get_batch(fpath = '/Users/yashbonde/Desktop/AI/chessshhh/KingBase2019-02.pgn',
-    #     batch_size = 3, shuffle = True
-    # )
-    # print(f'batches: {batches}')
 
     # create a iterator of the correct shape and type
     iter = tf.data.Iterator.from_structure(
         batches.output_types, batches.output_shapes)
     xs = iter.get_next()
-    train_init_op = iter.make_initializer(batches)  
-    print(f'=============== xs: {xs}')  
+    train_init_op = iter.make_initializer(batches)
+    print(f'=============== xs: {xs}')
 
     with tf.Session() as sess:
         sess.run(train_init_op)
@@ -68,6 +74,6 @@ def test_data_generator():
         print(f'to action: {_to}')
         print(f'result: {_res}')
 
+
 if __name__ == "__main__":
     test_trainer()
-
