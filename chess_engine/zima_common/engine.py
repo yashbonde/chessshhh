@@ -19,15 +19,10 @@ def flip_board_move(board, move):
     if not board.split()[1] == 'b':
         return board, move
     fen, _, castling_rights, enp, half_move, full_move = board.split()
-    fen = ''.join(reversed(fen))
+    fen = fen[::-1].swapcase()
     if enp.upper() in BOARD_POS:
         enp = BOARD_POS[abs(63 - chess.__dict__[enp.upper()])].lower()
     castling_rights = board.split()[2]
-    for k, v in FLIP_DICT.items():
-        fen = re.sub(k, v, fen)
-    fen = fen.upper()
-    for k, v in FLIP_DICT2.items():
-        fen = re.sub(k, v, fen)
     board = ' '.join([fen, 'w', castling_rights, enp, half_move, full_move])
 
     # now handle move
