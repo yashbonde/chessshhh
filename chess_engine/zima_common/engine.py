@@ -13,7 +13,7 @@ BOARD_POS = ['A1', 'B1', 'C1', 'D1', 'E1', 'F1', 'G1', 'H1', 'A2', 'B2', 'C2', '
              'C8', 'D8', 'E8', 'F8', 'G8', 'H8']
 FLIP_DICT = {"P": "P'", "N": "N'", "B": "B'", "R": "R'", "Q": "Q'", "K": "K'"}
 FLIP_DICT2 = {"P'": 'p', "N'": 'n', "B'": 'b', "R'": 'r', "Q'": 'q', "K'": 'k'}
-
+RESULT_VALUE = {'0-1': -1, '1/2-1/2':0, '1-0':+1}
 
 def flip_board_move(board, move):
     if not board.split()[1] == 'b':
@@ -33,7 +33,7 @@ def flip_board_move(board, move):
     return board, move
 
 
-def make_state(fen_string, return_legal=False):
+def make_state(fen_string, return_legal=False, player_layer = False):
     board = chess.Board(fen_string)
     state = np.zeros(64, np.uint8)
     for i in range(64):
@@ -61,11 +61,14 @@ def make_state(fen_string, return_legal=False):
     state = state.reshape(8, 8)  # reshape the state to target
 
     # binary state
-    b_state = np.zeros([4, 8, 8], np.uint8)
+    state_size = 5 if player_layer else 4
+    b_state = np.zeros([state_size, 8, 8], np.uint8)
     b_state[0] = (state >> 3) & 1
     b_state[1] = (state >> 2) & 1
     b_state[2] = (state >> 1) & 1
     b_state[3] = (state >> 0) & 1
+    if player_layer:
+        b_state[4] = (board.turn * 1.)
 
     if return_legal:
         return np.transpose(b_state, [1, 2, 0]).astype(np.uint8), list(board.legal_moves)

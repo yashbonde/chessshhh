@@ -1,7 +1,7 @@
 """this is the test for zima-net"""
 
 
-def test_build_network():
+def test_build_network_policy():
     import tensorflow as tf
     from net import network as zima_net
     print(zima_net((
@@ -10,6 +10,23 @@ def test_build_network():
         tf.placeholder(tf.int32, [None, ]),
         tf.placeholder(tf.float32, [None, ])
     )))
+
+def test_build_network_value_alphazero():
+    from types import SimpleNamespace
+    from chess_engine.zima_value import value_net
+    import tensorflow as tf
+    config = SimpleNamespace(
+        lr = 0.2,
+        lr_drops = [100,300,500],
+        reg_const = 0.002,
+        training = True
+    )
+    iter_obj = SimpleNamespace(
+        board=tf.placeholder(tf.uint8, [None, 8, 8, 25]),
+        value_target=tf.placeholder(tf.int32, [None, ])
+    )
+    network = value_net.value_network_alphazero(iter_obj, config)
+    print(network)
 
 
 def test_preprocess_states():
@@ -76,4 +93,4 @@ def test_data_generator():
 
 
 if __name__ == "__main__":
-    test_trainer()
+    test_build_network_value_alphazero()

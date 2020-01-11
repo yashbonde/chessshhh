@@ -1,19 +1,10 @@
 """this is the super smart AI model that can play any chess"""
 
+import os
 import chess
 import random
 
-class Turk(object):
-    def __init__(self):
-        pass
-
-    # def make_random_move(self, board_state_fen, opp_move):
-    #     board = chess.board(board_state_fen)
-    #     board.push(opp_move)
-    #     legal_moves = list(board.legal_moves)
-    #     move = random.choice(legal_moves)
-    #     board.push(move)
-    #     return move.uci(), board.fen()
+from chess_engine.zima_value
 
 def make_random_move(board_state_fen):
     board = chess.Board(board_state_fen)

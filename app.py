@@ -155,8 +155,7 @@ def start_game():
     auth_token = request.headers.get("Authentication")
     res = users.get_player_hash_for_auth_token(CURR, auth_token)['player_hash']
 
-
-
+    # plug game manager here
 
     # return okay status
     return make_response(jsonify(
