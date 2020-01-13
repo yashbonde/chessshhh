@@ -25,7 +25,7 @@ def get_lr_strategy(config, global_step):
     return lr
 
 
-def value_network_alphazero(iter_obj, config, lr=0.2):
+def value_network_alphazero(iter_obj, config):
     """
     This is only the value head part for this network and not the policy head
     piece, so I think we may get away with using less number of layers. The

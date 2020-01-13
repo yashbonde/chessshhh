@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # python3 trainer.py --name=bullet
 
 python3 trainer.py --m alphazero_value\

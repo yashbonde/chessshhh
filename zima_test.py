@@ -1,5 +1,5 @@
 """this is the test for zima-net"""
-
+import chess
 
 def test_build_network_policy():
     import tensorflow as tf
@@ -92,5 +92,21 @@ def test_data_generator():
         print(f'result: {_res}')
 
 
+def alphazero_network_operation():
+    from chess_engine.zima_value.player import ValuePlayerNetworkWrapper
+
+    def simple_game_orchestrator():
+        in_state = '8/8/8/8/8/8/8/7N w - - 0 1'
+        return
+
+    player = ValuePlayerNetworkWrapper()
+    in_state = '8/8/8/8/8/8/8/7N'
+    move = chess.Move(7, 22) # h1g3
+    new_state, boards, values = player.run_one_step_greedy(in_state, move.from_square, move.to_square)
+    print('-----> new_state:', new_state)
+    print('-----> boards', boards)
+    print('-----> values:', values)
+
+
 if __name__ == "__main__":
-    test_build_network_value_alphazero()
+    alphazero_network_operation()

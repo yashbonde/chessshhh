@@ -1,6 +1,7 @@
 """main runner file for our chess engine setup
 13.11.2019 - @yashbonde"""
 
+import os
 import uuid
 import random
 import logging
@@ -116,7 +117,7 @@ def make_move():
 
     # update move in DB for current player and game state if required
     moves.add_move_using_auth(CURR, CONN, game_id, auth_token, board_fen, san)
-    if san[-1] == '#': # this meanst that the game has ended
+    if san[-1] == '#': # this means that the game has ended
         games.end_game(CURR, CONN, game_id)
         return make_response(jsonify(
             board_state = board_fen,
@@ -149,6 +150,22 @@ def make_move():
     ))
 
 
+@app.route('/moveAI', methods = ["POST"])
+def move_ai_move():
+    payload = request.get_json()
+    from_ = payload['from']
+    to_ = payload['target']
+    board_fen = payload['board_fen']
+
+    global player
+    new_fen, possible_states, state_values = player.run_one_step_greedy(board_fen, from_, to_)
+    return make_response(jsonify(
+        board_state = new_fen,
+        possible_states = possible_states,
+        state_values = state_values
+    ))
+
+
 @app.route('/start_game', methods = ["GET"])
 def start_game():
     # get player hash
@@ -163,4 +180,8 @@ def start_game():
     ))
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    environ_modelname = os.environ["MODEL_NAME"]
+    if environ_modelname == "alphazero_value":
+        from chess_engine.zima_value.player import ValuePlayerNetworkWrapper
+        player = ValuePlayerNetworkWrapper()
+    app.run(debug=True, )
