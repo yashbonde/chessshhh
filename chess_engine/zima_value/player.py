@@ -62,15 +62,41 @@ class ValuePlayerNetworkWrapper:
         })
 
     def run_one_step_greedy(self, board_fens):
-        moves, boards = [], []
-        board = chess.Board(board_fens[-1])
-        for move in self.board.legal_moves:
-            self.board.push(move)
-            board_fen = self.board.fen()
-            boards.append(board_fen)
-            moves.append(move)
-            self.board.pop()
-        print('------> boards: {}'.format(boards))
+        """ board_fens is a list of FEN strings where latest fen is on the
+        right/lowest/[-1]"""
+        possible_moves, possible_boards = [], []
+        board_curr = chess.Board(board_fens[-1])
+        print('----------- MOVES -----------')
+        for midx, move in enumerate(board_curr.legal_moves):
+            print('---> {} - {}'.format(midx, move))
+            board_curr.push(move)
+            board_fen = board_curr.fen()
+            possible_boards.append(board_fen)
+            possible_moves.append(move)
+            board_curr.pop()
+        print('------> possible_moves: {}'.format(possible_moves))
+        print('------> possible_boards: {}'.format(possible_boards))
+
+        # now we make the various states for the chess board
+        boards = []
+        for pidx, pboard in enumerate(possible_boards):
+            print('---> {} ::: {}'.format(pidx, pboard))
+            curr_board_stack = board_fens + [pboard]
+            state = np.asarray([
+                engine.make_state(bfen, player_layer=True)\
+                    for bfen in curr_board_stack[::-1][:self.config.gram_size]])
+            state_ = state[0]
+            for s in state[1:]:
+                state_ = np.append(state_, s, axis = -1)
+            
+            if len(state) < self.config.gram_size:
+                for _ in range(gram_size - len(states_buffer)):
+                    state = np.append(state, np.zeros(shape=(8, 8, 5)), axis=-1)
+            boards.append(state)
+        
+        for b in boards:
+            print('----->', b.shape)
+
         value_of_states = self.get_values(boards)
         move_to_make = moves[np.argmax(value_of_states)]
         self.board.push(move_to_make)

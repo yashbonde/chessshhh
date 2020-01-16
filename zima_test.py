@@ -94,15 +94,15 @@ def test_data_generator():
 
 def alphazero_network_operation():
     from chess_engine.zima_value.player import ValuePlayerNetworkWrapper
-
-    def simple_game_orchestrator():
-        in_state = '8/8/8/8/8/8/8/7N w - - 0 1'
-        return
-
+    in_state = [
+        '6k1/6p1/8/pp6/4p3/1P1rB1PP/Pbb1NP2/4RK2 b - - 6 41',
+        '6k1/6p1/8/pp6/4p3/bP1rB1PP/P1b1NP2/R4K2 b - - 4 40',
+        'r4rk1/1p2b1p1/p3b3/q3pp1Q/N2BB3/1P4P1/P4P1P/2R2RK1 b - - 0 24',
+        'r1b1k2r/1p2bppp/p1n1p3/q7/N3BB2/1P4P1/P1Q2P1P/R4RK1 b kq - 2 17',
+        'r1bqkb1r/pp1ppppp/2n2n2/2p5/2P5/2N2N2/PP1PPPPP/R1BQKB1R w KQkq - 2 4'
+    ]
     player = ValuePlayerNetworkWrapper()
-    in_state = '8/8/8/8/8/8/8/7N'
-    move = chess.Move(7, 22) # h1g3
-    new_state, boards, values = player.run_one_step_greedy(in_state, move.from_square, move.to_square)
+    new_state, boards, values = player.run_one_step_greedy(in_state)
     print('-----> new_state:', new_state)
     print('-----> boards', boards)
     print('-----> values:', values)

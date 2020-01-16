@@ -39,4 +39,4 @@ def generator_fn(all_games_list):
             print(board)
             print('\n\n')
 
-generator_fn(load_data('../KB_small.pgn'))
+generator_fn(load_data('./explain/KB_small.pgn'))

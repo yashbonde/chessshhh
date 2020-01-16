@@ -25,7 +25,7 @@ def load_data(fpath, ret_len=False):
 
 def generator_fn(all_games, gram_size=3):
     for game_string in all_games:
-        games_buffer = collections.deque()
+        states_buffer = collections.deque()
         try:
             game = chess.pgn.read_game(
                 io.StringIO(game_string.decode('utf-8')))
@@ -33,39 +33,37 @@ def generator_fn(all_games, gram_size=3):
             game = chess.pgn.read_game(io.StringIO(game_string))
         board = game.board()
         game_result = engine.RESULT_VALUE[game.headers['Result']]
-        # print('----------> ', game_result,
-        #       game.headers['Result'], game.headers)
         player_old = 1
         for midx, move in enumerate(game.mainline_moves()):
             if midx == 0:
-                games_buffer.appendleft(board.fen())
-            if len(games_buffer) == gram_size:
+                states_buffer.appendleft(board.fen())
+            if len(states_buffer) == gram_size:
                 # return game state as is
-                games = list(games_buffer)
+                games = list(states_buffer)
                 game_states = [engine.make_state(
                     game, player_layer=True) for game in games]
                 target_state = game_states[0]
                 for game in game_states[1:]:
                     target_state = np.append(target_state, game, axis=-1)
                 yield target_state, int(game_result)
-                games_buffer.pop()
+                states_buffer.pop()
 
-            elif len(games_buffer) < gram_size:
+            elif len(states_buffer) < gram_size:
                 # stack with zeros is the idea
-                games = list(games_buffer)
+                games = list(states_buffer)
                 game_states = [engine.make_state(
                     game, player_layer=True) for game in games]
                 target_state = game_states[0]
                 for game in game_states[1:]:
                     target_state = np.append(target_state, game, axis=-1)
-                for _ in range(gram_size - len(games_buffer)):
+                for _ in range(gram_size - len(states_buffer)):
                     target_state = np.append(
                         target_state, np.zeros(shape=(8, 8, 5)), axis=-1)
                 yield target_state, int(game_result)
 
             # once the current board is returned update the move
             board.push(move)
-            games_buffer.appendleft(board.fen())
+            states_buffer.appendleft(board.fen())
             game_result *= -1.
 
 
